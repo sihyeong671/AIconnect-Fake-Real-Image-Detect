@@ -1,2 +1,6 @@
 /train
 /test
+*/__pycache__
+/wandb
+/.vscode
+/ckpt

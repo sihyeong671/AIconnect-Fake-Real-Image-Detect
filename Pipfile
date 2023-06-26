@@ -21,6 +21,9 @@ pytorch-lightning = "*"
 transformers = "*"
 timm = "*"
 torchinfo = "*"
+wandb = "*"
+pyyaml = "*"
+tqdm = "*"
 
 [dev-packages]
 

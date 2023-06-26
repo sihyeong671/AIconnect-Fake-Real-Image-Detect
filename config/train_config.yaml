@@ -1,0 +1,34 @@
+SEED: 999
+
+TRAINER:
+  model_name: resnet50 
+  optimizer: adam
+  scheduler: ReduceLROnPlateau
+  lr: 1.0e-4
+  loss_fn: bce
+  n_epochs: 15
+  metric:
+    - acc
+    - f1
+  early_stopping_target: val_accuracy
+  early_stopping_patience: 10
+  early_stopping_mode: max
+
+DATAMODULE:
+  train_img_path: train
+  test_img_path: test
+  val_size: 0.3
+  img_size: 224
+  batch_size: 64
+  num_workers: 2
+
+LOGGER:
+  debug : False
+  wandb: True
+  logging_interval: 100
+  plot:
+    - loss
+    - accuracy
+    - f1macro
+    - elapsed_time
+
