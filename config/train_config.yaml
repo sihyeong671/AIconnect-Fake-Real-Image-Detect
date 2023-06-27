@@ -1,12 +1,10 @@
-SEED: 999
-
 TRAINER:
-  model_name: resnet50 
+  model_name: resnet101
   optimizer: adam
   scheduler: ReduceLROnPlateau
   lr: 1.0e-4
   loss_fn: bce
-  n_epochs: 15
+  n_epochs: 20
   metric:
     - acc
     - f1
@@ -18,17 +16,10 @@ DATAMODULE:
   train_img_path: train
   test_img_path: test
   val_size: 0.3
-  img_size: 224
-  batch_size: 64
+  img_size: 384
+  batch_size: 32
   num_workers: 2
+  seed: 999
 
-LOGGER:
-  debug : False
-  wandb: True
-  logging_interval: 100
-  plot:
-    - loss
-    - accuracy
-    - f1macro
-    - elapsed_time
+seed: 999
 

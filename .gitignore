@@ -4,3 +4,5 @@
 /wandb
 /.vscode
 /ckpt
+/csv
+/lightning_logs

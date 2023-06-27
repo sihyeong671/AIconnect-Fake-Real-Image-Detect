@@ -1,4 +1,5 @@
 import os
+import random
 from glob import glob
 
 import numpy as np
@@ -6,6 +7,7 @@ from PIL import Image
 import cv2
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+from sklearn.model_selection import train_test_split
 
 from torch.utils.data import Dataset, DataLoader
 
@@ -49,29 +51,30 @@ class DataModule(pl.LightningDataModule):
     
     self.batch_size = config["batch_size"]
     self.num_workers = config["num_workers"]
-  
+    self.seed = config["seed"]
+    
   def setup(self, stage=None):
+    train_transform = A.Compose([
+        A.Resize(self.img_size, self.img_size),
+        A.HorizontalFlip(),
+        A.VerticalFlip(),
+        A.Normalize(),
+        ToTensorV2()
+      ])
+    
+    test_transform = A.Compose([
+      A.Resize(self.img_size, self.img_size),
+      A.Normalize(),
+      ToTensorV2()
+    ])
+    
     if stage == "train":
-      train_transform = A.Compose([
-        A.Resize(self.img_size, self.img_size),
-        A.Normalize(),
-        ToTensorV2()
-      ])
-      
-      test_transform = A.Compose([
-        A.Resize(self.img_size, self.img_size),
-        A.Normalize(),
-        ToTensorV2()
-      ])
-      
       # 터미널 기준 경로 or 절대경로
       real_img_paths = glob(f".\\{self.train_img_path}\\real_images\\*")
       fake_img_paths = glob(f".\\{self.train_img_path}\\fake_images\\*")
+      labels = [1] * len(real_img_paths) + [0] * len(fake_img_paths)
       
-      train_img_paths = real_img_paths[int(len(real_img_paths)*self.val_size):] + fake_img_paths[int(len(fake_img_paths) * self.val_size):]
-      train_labels = [1] * len(train_img_paths)
-      val_img_paths = real_img_paths[:int(len(real_img_paths)*self.val_size)] + fake_img_paths[:int(len(fake_img_paths) * self.val_size)]
-      val_labels = [0] * len(val_img_paths)
+      train_img_paths, val_img_paths, train_labels, val_labels = train_test_split(real_img_paths+fake_img_paths, labels, test_size=self.val_size, random_state=self.seed)
       
       self.train_dataset = CustomDataset(train_img_paths, train_labels, train_transform)
       self.val_dataset = CustomDataset(val_img_paths, val_labels, test_transform)
@@ -99,7 +102,7 @@ class DataModule(pl.LightningDataModule):
   def test_dataloader(self):
     return DataLoader(
       dataset=self.test_dataset,
-      batch_size=self.batch_size,
+      batch_size= 2*self.batch_size,
       shuffle=False,
       num_workers=self.num_workers
     )

@@ -1,3 +1,5 @@
+import os
+
 from models.utils import get_model
 from modules.optimizers import get_optimizer, get_scheduler
 from modules.losses import get_loss
@@ -5,6 +7,7 @@ from modules.metrics import get_metric
 
 import seaborn as sns
 import pandas as pd
+import numpy as np
 import wandb
 import matplotlib.pyplot as plt
 
@@ -103,13 +106,16 @@ class LightningModule(pl.LightningModule):
     return metrics
   def test_step(self, batch, batch_idx):
     imgs = batch
-    preds = self(imgs)
-    preds = preds.squeeze(-1)
-    self.test_step_outputs += (preds.detach().cpu().numpy().tolist())
+    probs = self(imgs)
+    preds = probs.squeeze(-1)
+    preds = preds.detach().cpu().numpy()
+    preds = np.where(preds > 0.5, 1, 0)
+    self.test_step_outputs += preds.tolist()
   
   def on_test_epoch_end(self):
-    submit = pd.read_csv(".\\dataset\\sample_submission.csv")
-    submit["label"] = self.test_step_outputs
-    submit.to_csv(f".\\submit.csv", index=False)
+    os.makedirs(".\\csv", exist_ok=True)
+    submit = pd.read_csv(".\\test\\sample_submission.csv")
+    submit["answer"] = self.test_step_outputs
+    submit.to_csv(f".\\csv\\ResNet101_submit.csv", index=False)
     
   

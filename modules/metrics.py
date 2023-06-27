@@ -1,5 +1,4 @@
-from torchmetrics.classification import BinaryAccuracy, BinaryF1Score,  BinaryConfusionMatrix
-
+from torchmetrics.classification import BinaryAccuracy, BinaryF1Score
 
 def get_metric(metric_name: str):
   if metric_name == 'acc':

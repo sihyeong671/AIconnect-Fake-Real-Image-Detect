@@ -1,6 +1,7 @@
-from modules.utils import load_yaml
+from modules.utils import load_yaml, seed_everything
 from modules.datamodule import DataModule
 from modules.trainer import LightningModule
+
 
 import argparse
 import os
@@ -28,7 +29,7 @@ def train(config):
     monitor="val_f1",
     mode="max",
     dirpath=".\\ckpt",
-    filename="ResNet50_{epoch}"
+    filename="ResNet101_{epoch}"
   )
   early_stop_callback = EarlyStopping(
     monitor="val_f1",
@@ -39,7 +40,7 @@ def train(config):
   
   wandb_logger = WandbLogger(
     entity="bsh",
-    name="ResNet50_v0",
+    name="ResNet101_v0",
     project="aiconnect_fake_real_detect"
   )
   
@@ -56,7 +57,7 @@ def test(config):
   data_module = DataModule(config=config["DATAMODULE"])
   data_module.setup(stage="test")
   
-  model = LightningModule.load_from_checkpoint(".\\ckpt\\", config=config["TRAINER"])
+  model = LightningModule.load_from_checkpoint(".\\ckpt\\ResNet50_epoch=11.ckpt", config=config["TRAINER"])
   
   trainer = pl.Trainer(
     accelerator="gpu",
@@ -77,6 +78,8 @@ if __name__ == "__main__":
   args = parser.parse_args()
   
   plt.rcParams["font.family"] = "MalGun Gothic"
+  
+  seed_everything(seed=config["seed"])
 
   if args.mode == "train":
     train(config)
