@@ -24,6 +24,8 @@ torchinfo = "*"
 wandb = "*"
 pyyaml = "*"
 tqdm = "*"
+selenium = "*"
+beautifulsoup4 = "*"
 
 [dev-packages]
 

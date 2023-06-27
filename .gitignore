@@ -6,3 +6,5 @@
 /ckpt
 /csv
 /lightning_logs
+/crawling/chromedriver.exe
+/other_img

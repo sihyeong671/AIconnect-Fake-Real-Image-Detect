@@ -1,5 +1,5 @@
 TRAINER:
-  model_name: resnet101
+  model_name: van
   optimizer: adam
   scheduler: ReduceLROnPlateau
   lr: 1.0e-4
@@ -8,8 +8,8 @@ TRAINER:
   metric:
     - acc
     - f1
-  early_stopping_target: val_accuracy
-  early_stopping_patience: 10
+  early_stopping_target: val_f1
+  early_stopping_patience: 5
   early_stopping_mode: max
 
 DATAMODULE:
@@ -17,7 +17,7 @@ DATAMODULE:
   test_img_path: test
   val_size: 0.3
   img_size: 384
-  batch_size: 32
+  batch_size: 16
   num_workers: 2
   seed: 999
 

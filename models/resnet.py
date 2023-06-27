@@ -18,9 +18,13 @@ class ResNet50(nn.Module):
   def forward(self, x):
     x = self.model(x)
     return F.sigmoid(x)
-  
 
 class ResNet101(nn.Module):
+  def __init__(self):
+    super().__init__()
+    
+
+class ResNet101_GRAM(nn.Module):
   def __init__(self):
     super().__init__()
     self.gram_list = []
@@ -28,18 +32,17 @@ class ResNet101(nn.Module):
     self.conv1 = model.conv1
     self.bn1 = model.bn1
     self.act1 = model.act1
-    self.maxpool1 = model.maxpool1
+    self.maxpool = model.maxpool
     self.layer1 = model.layer1
     self.layer2 = model.layer2
     self.layer3 = model.layer3
     self.layer4 = model.layer4
     self.gp = model.global_pool
-    self.model.fc = nn.Identity()
     
     self.gram = GramMatrix()
     self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
     self.classifier = nn.Sequential(
-      nn.Linear(2048, 512),
+      nn.Linear(2240, 512),
       nn.BatchNorm1d(512),
       nn.ReLU(),
       nn.Dropout1d(0.5),
@@ -144,7 +147,7 @@ class ResNet101(nn.Module):
     x = self.conv1(x0)
     x = self.bn1(x)
     x1 = self.act1(x)
-    x2 = self.maxpoo1(x1)
+    x2 = self.maxpool(x1)
     
     x3 = self.layer1(x2)
     x4 = self.layer2(x3)
