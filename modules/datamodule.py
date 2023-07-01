@@ -75,8 +75,11 @@ class DataModule(pl.LightningDataModule):
     
     if stage == "train":
       # 터미널 기준 경로 or 절대경로
-      real_img_paths = glob(f".\\{self.train_img_path}\\real_images\\*")
-      fake_img_paths = glob(f".\\{self.train_img_path}\\fake_images\\*")
+      real_img_paths = glob(f".\\{self.train_img_path}\\real_images\\*") + glob(".\\coco-2017\\data\\*")
+      
+      fake_img_paths = glob(f".\\{self.train_img_path}\\fake_images\\*") + glob(".\\gen_data\\*\\*")
+      
+      
       labels = [0] * len(real_img_paths) + [1] * len(fake_img_paths)
       
       train_img_paths, val_img_paths, train_labels, val_labels = train_test_split(real_img_paths+fake_img_paths, labels, test_size=self.val_size, random_state=self.seed)
