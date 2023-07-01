@@ -29,7 +29,7 @@ def train(config):
     monitor="val_f1",
     mode="max",
     dirpath=".\\ckpt",
-    filename="resnet101_v0_{epoch}"
+    filename="resnet101_v1_{epoch}"
   )
   early_stop_callback = EarlyStopping(
     monitor="val_f1",
@@ -40,7 +40,7 @@ def train(config):
   
   wandb_logger = WandbLogger(
     entity="bsh",
-    name="resnet101_v0",
+    name="resnet101_v1",
     project="aiconnect_fake_real_detect"
   )
   
@@ -58,7 +58,7 @@ def test(config):
   data_module = DataModule(config=config["DATAMODULE"])
   data_module.setup(stage="test")
   
-  model = LightningModule.load_from_checkpoint(".\\ckpt\\resnet101_v0_epoch=9.ckpt", config=config["TRAINER"])
+  model = LightningModule.load_from_checkpoint(".\\ckpt\\resnet101_v1_epoch=19.ckpt", config=config["TRAINER"])
   
   trainer = pl.Trainer(
     accelerator="gpu",

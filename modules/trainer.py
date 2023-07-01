@@ -116,6 +116,6 @@ class LightningModule(pl.LightningModule):
     os.makedirs(".\\csv", exist_ok=True)
     submit = pd.read_csv(".\\test\\sample_submission.csv")
     submit["answer"] = self.test_step_outputs
-    submit.to_csv(f".\\csv\\ResNet101_v0.csv", index=False)
+    submit.to_csv(f".\\csv\\ResNet101_v1.csv", index=False)
     
   

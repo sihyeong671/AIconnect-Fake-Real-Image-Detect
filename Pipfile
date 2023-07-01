@@ -26,6 +26,7 @@ pyyaml = "*"
 tqdm = "*"
 selenium = "*"
 beautifulsoup4 = "*"
+fiftyone = "*"
 
 [dev-packages]
 

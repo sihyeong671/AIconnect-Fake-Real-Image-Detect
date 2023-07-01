@@ -52,12 +52,17 @@ class DataModule(pl.LightningDataModule):
     self.batch_size = config["batch_size"]
     self.num_workers = config["num_workers"]
     self.seed = config["seed"]
-    
+  
   def setup(self, stage=None):
     train_transform = A.Compose([
         A.Resize(self.img_size, self.img_size),
         A.HorizontalFlip(),
         A.VerticalFlip(),
+        A.OneOf([
+          A.ChannelShuffle(p=0.2),
+          A.ToGray(p=0.2),
+          A.Blur(p=0.2)
+        ]),
         A.Normalize(),
         ToTensorV2()
       ])
