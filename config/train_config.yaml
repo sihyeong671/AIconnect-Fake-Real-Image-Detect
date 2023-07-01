@@ -1,5 +1,5 @@
 TRAINER:
-  model_name: van
+  model_name: resnet101
   optimizer: adam
   scheduler: ReduceLROnPlateau
   lr: 1.0e-4
