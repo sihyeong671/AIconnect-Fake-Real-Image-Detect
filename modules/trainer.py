@@ -108,7 +108,7 @@ class LightningModule(pl.LightningModule):
   def test_step(self, batch, batch_idx):
     imgs = batch
     probs = self(imgs)
-    preds = probs.squeeze(-1)
+    preds = probs.view(probs.size(0))
     preds = preds.detach().cpu().numpy()
     preds = np.where(preds > 0.5, 1, 0)
     self.test_step_outputs += preds.tolist()
