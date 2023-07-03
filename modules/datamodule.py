@@ -31,8 +31,14 @@ class CustomDataset(Dataset):
     img = np.asarray(img)
     
     if self.transforms is not None:
-      img = self.transforms(image=img)["image"]
-    
+      if len(self.transforms) == 1:
+        img = self.transforms[0](image=img)["image"]
+      else:
+        h, w, _ = img.shape
+        if h < 256 or w < 256:
+          img = self.transforms[0](image=img)["image"]
+        else:
+          img = self.transforms[1](image=img)["image"]
     if self.labels is not None:
       label = self.labels[index]
       return img, label
@@ -54,21 +60,31 @@ class DataModule(pl.LightningDataModule):
     self.seed = config["seed"]
   
   def setup(self, stage=None):
-    train_transform = A.Compose([
+    
+    train_transform_1 = A.Compose([
         A.Resize(self.img_size, self.img_size),
         A.HorizontalFlip(),
         A.VerticalFlip(),
-        A.OneOf([
-          A.ChannelShuffle(p=0.2),
-          A.ToGray(p=0.2),
-          A.Blur(p=0.2)
-        ]),
         A.Normalize(),
         ToTensorV2()
       ])
     
-    test_transform = A.Compose([
+    train_transform_2 = A.Compose([
+        A.RandomCrop(self.img_size, self.img_size),
+        A.HorizontalFlip(),
+        A.VerticalFlip(),
+        A.Normalize(),
+        ToTensorV2()
+      ])
+    
+    test_transform_1 = A.Compose([
       A.Resize(self.img_size, self.img_size),
+      A.Normalize(),
+      ToTensorV2()
+    ])
+    
+    test_transform_2 = A.Compose([
+      A.CenterCrop(self.img_size, self.img_size),
       A.Normalize(),
       ToTensorV2()
     ])
@@ -84,12 +100,12 @@ class DataModule(pl.LightningDataModule):
       
       train_img_paths, val_img_paths, train_labels, val_labels = train_test_split(real_img_paths+fake_img_paths, labels, test_size=self.val_size, random_state=self.seed)
       
-      self.train_dataset = CustomDataset(train_img_paths, train_labels, train_transform)
-      self.val_dataset = CustomDataset(val_img_paths, val_labels, test_transform)
+      self.train_dataset = CustomDataset(train_img_paths, train_labels, [train_transform_1, train_transform_2])
+      self.val_dataset = CustomDataset(val_img_paths, val_labels, [test_transform_1, test_transform_2])
 
     elif stage == "test":
       test_img_paths = glob(f".\\{self.test_img_path}\\images\\*")
-      self.test_dataset = CustomDataset(test_img_paths, transforms=test_transform)
+      self.test_dataset = CustomDataset(test_img_paths, transforms=[test_transform_1, test_transform_2])
 
   def train_dataloader(self):
     return DataLoader(

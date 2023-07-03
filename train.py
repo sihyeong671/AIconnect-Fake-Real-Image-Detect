@@ -29,7 +29,7 @@ def train(config):
     monitor="val_f1",
     mode="max",
     dirpath=".\\ckpt",
-    filename="resnet101_v1_{epoch}"
+    filename="resnet_nodown_v0_{epoch}"
   )
   early_stop_callback = EarlyStopping(
     monitor="val_f1",
@@ -40,12 +40,12 @@ def train(config):
   
   wandb_logger = WandbLogger(
     entity="bsh",
-    name="resnet101_v1",
+    name="resnet_nodown_v0",
     project="aiconnect_fake_real_detect"
   )
   
   trainer = pl.Trainer(
-    # accumulate_grad_batches=2,
+    accumulate_grad_batches=4,
     max_epochs=config["TRAINER"]["n_epochs"],
     accelerator="gpu",
     callbacks=[ckpt_callback, early_stop_callback],
@@ -58,7 +58,7 @@ def test(config):
   data_module = DataModule(config=config["DATAMODULE"])
   data_module.setup(stage="test")
   
-  model = LightningModule.load_from_checkpoint(".\\ckpt\\resnet101_v1_epoch=19.ckpt", config=config["TRAINER"])
+  model = LightningModule.load_from_checkpoint(".\\ckpt\\resnet_nodown_v0_epoch=15.ckpt", config=config["TRAINER"])
   
   trainer = pl.Trainer(
     accelerator="gpu",
@@ -70,6 +70,7 @@ def test(config):
   )
 
 if __name__ == "__main__":
+  # os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
   PROJECT_DIR = os.path.dirname(__file__)
   config_path = os.path.join(PROJECT_DIR, "config", "train_config.yaml")
   config = load_yaml(config_path)

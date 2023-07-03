@@ -21,6 +21,7 @@ class LightningModule(pl.LightningModule):
     super().__init__()
     self.DEVICE = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     self.model = get_model(config["model_name"])
+    self.model.load_state_dict(torch.load(f".\\models\\{config['weight_file_name']}", map_location=torch.device('cuda'))['model'])
     optimizer = get_optimizer(config["optimizer"])
     self.optimizer = optimizer(params=self.parameters(), lr=config["lr"])
     scheduler = get_scheduler(config["scheduler"])
@@ -92,7 +93,7 @@ class LightningModule(pl.LightningModule):
     # type casting to float
     labels = labels.type(torch.cuda.FloatTensor)
     preds = self(imgs)
-    preds = preds.squeeze(-1)
+    preds = preds.view(preds.size(0))
     loss = self.loss_fn(preds, labels)
     
     metrics = {f"{mode}_{metric_name}": metric_fn(preds, labels) for metric_name, metric_fn in self.metrics.items()}
@@ -107,7 +108,7 @@ class LightningModule(pl.LightningModule):
   def test_step(self, batch, batch_idx):
     imgs = batch
     probs = self(imgs)
-    preds = probs.squeeze(-1)
+    preds = probs.view(probs.size(0))
     preds = preds.detach().cpu().numpy()
     preds = np.where(preds > 0.5, 1, 0)
     self.test_step_outputs += preds.tolist()
@@ -116,6 +117,6 @@ class LightningModule(pl.LightningModule):
     os.makedirs(".\\csv", exist_ok=True)
     submit = pd.read_csv(".\\test\\sample_submission.csv")
     submit["answer"] = self.test_step_outputs
-    submit.to_csv(f".\\csv\\ResNet101_v1.csv", index=False)
+    submit.to_csv(f".\\csv\\resnet_nodown_v0.csv", index=False)
     
   

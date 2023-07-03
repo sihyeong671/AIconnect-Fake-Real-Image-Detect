@@ -11,3 +11,4 @@
 /TestSet
 /coco-2017
 /gen_data
+*.pth
